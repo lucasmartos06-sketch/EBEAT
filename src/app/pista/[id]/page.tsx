@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import AudioPlayer from '@/components/AudioPlayer';
+import NegotiateButton from '@/components/NegotiateButton';
 import { COMMISSION_PERCENT, LICENSES } from '@/lib/config';
 import { coverClass, formatPrice, initial } from '@/lib/format';
 import { getTrack } from '@/lib/tracks';
@@ -68,8 +69,9 @@ export default async function PistaPage({ params }: { params: Promise<{ id: stri
               Comprar (próximamente)
             </button>
             <div className="faint" style={{ marginTop: 10, fontSize: 13 }}>
-              Los pagos se activarán en la siguiente fase.
+              Los pagos se activarán en una fase posterior.
             </div>
+            <NegotiateButton trackId={track.id} producerId={track.producer_id} demo={track.demo} />
           </div>
         </aside>
       </div>

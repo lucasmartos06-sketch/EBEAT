@@ -63,6 +63,12 @@ la forma más rápida de arreglarlo.
 3. Ve a **Subir pista**, sube un MP3 pequeño y publícalo.
 4. Comprueba que aparece en el **Catálogo** y que se reproduce.
 
+## Fase 2: chat y encargos
+
+Además del paso 1, hay que ejecutar un segundo texto SQL en Supabase (**SQL Editor** → **New query**): el contenido
+de `supabase/fase2-chat-encargos.sql`. Pega el contenido completo, no el nombre del archivo. Después, desplegar la
+rama con los cambios en Vercel.
+
 ## Qué hace y qué no hace todavía esta versión
 
 Funciona: registro y entrada, subida de pistas con audio, catálogo con filtro por género, página de cada pista

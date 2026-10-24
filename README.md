@@ -2,8 +2,8 @@
 
 Plataforma web para que productores de música suban sus beats y los licencien a compradores.
 
-Estado: **fase 1** (cuentas, subida de pistas, catálogo y reproductor). Los pagos, el chat, los encargos, el
-ranking y las subastas llegarán en las siguientes fases.
+Estado: cuentas, subida de pistas, catálogo y reproductor (fase 1), más chat de negociación con ofertas y
+encargos (fase 2). Los pagos, las subastas, el ranking y el panel del productor llegarán en las siguientes fases.
 
 ## Tecnología
 
@@ -21,7 +21,7 @@ Sigue la guía paso a paso: [`docs/GUIA-PUESTA-EN-MARCHA.md`](docs/GUIA-PUESTA-E
 src/app/          Páginas: inicio, catálogo, pista, subir, entrar
 src/components/   Reproductor, formularios, tarjetas
 src/lib/          Configuración, acceso a datos y utilidades
-supabase/         Esquema de la base de datos (schema.sql)
+supabase/         Esquemas de la base de datos (schema.sql y fase2-chat-encargos.sql)
 docs/             Guías
 ```
 

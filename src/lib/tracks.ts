@@ -10,6 +10,7 @@ export type Track = {
   description: string | null;
   audio_url: string | null;
   producer_name: string;
+  producer_id?: string;
   demo?: boolean;
 };
 
@@ -24,7 +25,7 @@ export const DEMO_TRACKS: Track[] = [
 ];
 
 const COLUMNS =
-  'id,title,genre,bpm,price_cents,license,description,audio_path,profiles(display_name)';
+  'id,producer_id,title,genre,bpm,price_cents,license,description,audio_path,profiles(display_name)';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toTrack(row: any, publicUrl: (path: string) => string): Track {
@@ -39,6 +40,7 @@ function toTrack(row: any, publicUrl: (path: string) => string): Track {
     description: row.description,
     audio_url: row.audio_path ? publicUrl(row.audio_path) : null,
     producer_name: profile?.display_name || 'Productor',
+    producer_id: row.producer_id,
   };
 }
 
