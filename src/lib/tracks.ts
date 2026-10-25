@@ -144,3 +144,18 @@ export async function searchTracks(p: SearchParams): Promise<Track[]> {
   const publicUrl = (path: string) => sb.storage.from('previews').getPublicUrl(path).data.publicUrl;
   return data.map((row) => toTrack(row, publicUrl));
 }
+
+export async function getProducerTracks(producerId: string): Promise<Track[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb
+    .from('tracks')
+    .select(COLUMNS)
+    .eq('producer_id', producerId)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(60);
+  if (error || !data) return [];
+  const publicUrl = (path: string) => sb.storage.from('previews').getPublicUrl(path).data.publicUrl;
+  return data.map((row) => toTrack(row, publicUrl));
+}

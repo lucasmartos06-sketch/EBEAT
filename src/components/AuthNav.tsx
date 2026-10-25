@@ -5,21 +5,23 @@ import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
 
 export default function AuthNav() {
-  const [logged, setLogged] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const sb = getSupabase();
     if (!sb) return;
-    sb.auth.getSession().then(({ data }) => setLogged(Boolean(data.session)));
+    sb.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
     const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
-      setLogged(Boolean(session));
+      setUserId(session?.user.id ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  if (logged) {
+  if (userId) {
     return (
-      <button
+      <>
+        <Link href={`/productor/${userId}`} className="nav-link">Mi perfil</Link>
+        <button
         type="button"
         className="nav-link"
         onClick={async () => {
@@ -27,7 +29,8 @@ export default function AuthNav() {
         }}
       >
         Cerrar sesión
-      </button>
+        </button>
+      </>
     );
   }
   return (

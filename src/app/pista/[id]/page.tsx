@@ -38,7 +38,7 @@ export default async function PistaPage({ params }: { params: Promise<{ id: stri
           </div>
           <h1 style={{ marginTop: 14, fontSize: 'clamp(32px, 4.5vw, 46px)' }}>{track.title}</h1>
           <div style={{ marginTop: 6, fontSize: 16, color: 'var(--accent)', fontWeight: 600 }}>
-            {track.producer_name}
+            {track.producer_id ? <Link href={`/productor/${track.producer_id}`}>{track.producer_name}</Link> : track.producer_name}
           </div>
 
           <AudioPlayer src={track.audio_url} title={track.title} />

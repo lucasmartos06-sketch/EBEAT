@@ -45,16 +45,18 @@ export function countdown(endsAt: string, now: number): string {
 
 export type AuctionListItem = Auction & { track_title: string; track_genre: string };
 
-export async function getActiveAuctions(): Promise<AuctionListItem[]> {
+export async function getActiveAuctions(sellerId?: string): Promise<AuctionListItem[]> {
   const sb = getSupabase();
   if (!sb) return [];
-  const { data, error } = await sb
+  let query = sb
     .from('auctions')
     .select(AUCTION_COLUMNS + ',tracks(title,genre)')
     .eq('status', 'active')
     .gt('ends_at', new Date().toISOString())
     .order('ends_at', { ascending: true })
     .limit(100);
+  if (sellerId) query = query.eq('seller_id', sellerId);
+  const { data, error } = await query;
   if (error || !data) return [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data as any[]).map((row) => {
