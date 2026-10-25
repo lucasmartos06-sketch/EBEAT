@@ -21,6 +21,7 @@ export default function AuthNav() {
     return (
       <>
         <Link href={`/productor/${userId}`} className="nav-link">Mi perfil</Link>
+        <Link href="/cuenta" className="nav-link">Ajustes</Link>
         <button
         type="button"
         className="nav-link"
