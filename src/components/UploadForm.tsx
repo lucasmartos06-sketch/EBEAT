@@ -81,23 +81,37 @@ export default function UploadForm() {
       return setError('No se pudo subir el audio: ' + upload.error.message);
     }
 
-    const { data, error: insertError } = await sb
+    // Copia privada del original: es la que se descarga tras comprar. Si todavía no está
+    // activada la parte de pagos en la base de datos, la subida sigue funcionando sin ella.
+    const original = await sb.storage.from('originals').upload(path, file, {
+      contentType: file.type,
+      upsert: false,
+    });
+    const hasOriginal = !original.error;
+
+    const row: Record<string, unknown> = {
+      producer_id: userId,
+      title,
+      genre,
+      bpm,
+      price_cents: Math.round(price * 100),
+      license,
+      description: description || null,
+      audio_path: path,
+    };
+    let result = await sb
       .from('tracks')
-      .insert({
-        producer_id: userId,
-        title,
-        genre,
-        bpm,
-        price_cents: Math.round(price * 100),
-        license,
-        description: description || null,
-        audio_path: path,
-      })
+      .insert(hasOriginal ? { ...row, original_path: path } : row)
       .select('id')
       .single();
+    if (result.error && result.error.message.includes('original_path')) {
+      result = await sb.from('tracks').insert(row).select('id').single();
+    }
+    const { data, error: insertError } = result;
 
     if (insertError || !data) {
       await sb.storage.from('previews').remove([path]);
+      if (hasOriginal) await sb.storage.from('originals').remove([path]);
       setBusy(false);
       return setError('No se pudo guardar la pista: ' + (insertError?.message ?? 'error desconocido'));
     }
@@ -108,8 +122,8 @@ export default function UploadForm() {
   return (
     <form className="form" onSubmit={onSubmit}>
       <div className="notice warn" style={{ marginBottom: 26 }}>
-        <strong>Versión de pruebas.</strong> Por ahora el audio se guarda sin protección adicional (sin marca
-        de agua ni archivo original privado). No subas todavía pistas que quieras vender de verdad.
+        <strong>Versión de pruebas.</strong> Por ahora el audio de escucha es público (sin marca de agua). El
+        archivo original que se descarga tras comprar se guarda en una copia privada.
       </div>
 
       <div className="field-group">

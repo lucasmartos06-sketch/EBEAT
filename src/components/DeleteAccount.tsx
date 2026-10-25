@@ -26,6 +26,11 @@ export default function DeleteAccount() {
       await sb.storage.from('previews').remove(files.map((f) => `${userId}/${f.name}`));
     }
 
+    const { data: originals } = await sb.storage.from('originals').list(userId, { limit: 1000 });
+    if (originals && originals.length > 0) {
+      await sb.storage.from('originals').remove(originals.map((f) => `${userId}/${f.name}`));
+    }
+
     const { error: rpcError } = await sb.rpc('delete_my_account');
     if (rpcError) {
       setBusy(false);

@@ -7,6 +7,7 @@ import { getSupabase } from '@/lib/supabase';
 import { fetchNames } from '@/lib/profiles';
 import { formatPrice } from '@/lib/format';
 import { useUserId } from '@/lib/useUserId';
+import BuyButton from '@/components/BuyButton';
 import { AUCTION_COLUMNS, countdown, minNextBid, shownPrice, type Auction } from '@/lib/auctions';
 
 type Bid = { id: string; bidder_id: string; amount_cents: number; created_at: string };
@@ -18,6 +19,7 @@ export default function AuctionPanel({ initial }: { initial: Auction }) {
   const userId = useUserId();
   const [auction, setAuction] = useState<Auction>(initial);
   const [bids, setBids] = useState<Bid[]>([]);
+  const [paid, setPaid] = useState(false);
   const [names, setNames] = useState<Record<string, string>>({});
   const [now, setNow] = useState<number | null>(null);
   const [amount, setAmount] = useState('');
@@ -38,6 +40,8 @@ export default function AuctionPanel({ initial }: { initial: Auction }) {
         .limit(20),
     ]);
     if (a) setAuction(a as Auction);
+    const { data: o } = await sb.from('orders').select('id').eq('auction_id', initial.id).eq('status', 'paid').limit(1);
+    setPaid(Boolean(o && o.length > 0));
     const list = (b ?? []) as Bid[];
     setBids(list);
     const ids = list.map((x) => x.bidder_id);
@@ -129,9 +133,15 @@ export default function AuctionPanel({ initial }: { initial: Auction }) {
         <div className="notice" style={{ marginTop: 20 }}>
           <strong>Subasta ganada por {winnerName} con {formatPrice(auction.final_cents ?? 0)}.</strong>{' '}
           {userId === auction.winner_id
-            ? 'Eres el ganador y tienes la obligación de comprar la pista. El pago se activará en una fase posterior.'
+            ? 'Eres el ganador y tienes la obligación de comprar la pista.'
             : 'El ganador está obligado a comprar la pista.'}
         </div>
+      )}
+      {auction.status === 'ended' && auction.result === 'won' && userId === auction.winner_id && !paid && (
+        <BuyButton kind="auction" id={auction.id} label={`Pagar ${formatPrice(auction.final_cents ?? 0)}`} />
+      )}
+      {auction.status === 'ended' && auction.result === 'won' && paid && (
+        <div className="notice" style={{ marginTop: 12 }}><strong>Pagada.</strong> El comprador puede descargar la pista desde su panel.</div>
       )}
       {auction.status === 'ended' && auction.result === 'no_bids' && (
         <div className="notice" style={{ marginTop: 20 }}>La subasta terminó sin pujas.</div>

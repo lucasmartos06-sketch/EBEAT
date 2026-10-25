@@ -56,10 +56,20 @@ export default function MyTracks() {
     if (active && active.length > 0) {
       return setError('Esta pista tiene una subasta activa. Espera a que termine o cancélala antes de borrarla.');
     }
+    const { data: sold } = await sb
+      .from('orders')
+      .select('id')
+      .eq('track_id', r.id)
+      .eq('status', 'paid')
+      .limit(1);
+    if (sold && sold.length > 0) {
+      return setError('Esta pista ya se ha vendido y el comprador puede descargarla, así que no se puede borrar. Puedes ocultarla.');
+    }
     if (!window.confirm(`¿Borrar «${r.title}»? No se puede deshacer.`)) return;
     const { error: e } = await sb.from('tracks').delete().eq('id', r.id);
     if (e) return setError(e.message);
     await sb.storage.from('previews').remove([r.audio_path]);
+    await sb.storage.from('originals').remove([r.audio_path]);
     await load();
   }
 

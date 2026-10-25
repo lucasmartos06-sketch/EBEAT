@@ -6,6 +6,7 @@ import { getSupabase } from '@/lib/supabase';
 import { fetchNames } from '@/lib/profiles';
 import { formatPrice } from '@/lib/format';
 import { useUserId } from '@/lib/useUserId';
+import BuyButton from '@/components/BuyButton';
 
 type Conv = {
   id: string;
@@ -38,6 +39,7 @@ export default function ChatRoom({ id }: { id: string }) {
   const [missing, setMissing] = useState(false);
   const [names, setNames] = useState<Record<string, string>>({});
   const [messages, setMessages] = useState<Msg[]>([]);
+  const [paidOffers, setPaidOffers] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [offer, setOffer] = useState('');
   const [mode, setMode] = useState<'text' | 'offer'>('text');
@@ -54,6 +56,12 @@ export default function ChatRoom({ id }: { id: string }) {
       .eq('conversation_id', id)
       .order('created_at', { ascending: true });
     if (data) setMessages(data as Msg[]);
+    const { data: paid } = await sb
+      .from('orders')
+      .select('offer_message_id')
+      .eq('status', 'paid')
+      .not('offer_message_id', 'is', null);
+    setPaidOffers(((paid ?? []) as { offer_message_id: string }[]).map((p) => p.offer_message_id));
   }, [id]);
 
   useEffect(() => {
@@ -192,6 +200,10 @@ export default function ChatRoom({ id }: { id: string }) {
                 )}
                 {m.offer_status === 'pending' && mine && <div className="faint" style={{ marginTop: 8, fontSize: 13 }}>Esperando respuesta…</div>}
                 {m.offer_status === 'accepted' && <div className="status-ok">Aceptada</div>}
+                {m.offer_status === 'accepted' && conv.track_id && userId === conv.buyer_id && !paidOffers.includes(m.id) && (
+                  <BuyButton kind="offer" id={m.id} label={`Pagar ${formatPrice(m.offer_cents ?? 0)}`} small />
+                )}
+                {m.offer_status === 'accepted' && paidOffers.includes(m.id) && <div className="status-ok">Pagada</div>}
                 {m.offer_status === 'rejected' && <div className="status-no">Rechazada</div>}
                 <div className="bubble-time">{time(m.created_at)}</div>
               </div>
@@ -209,8 +221,10 @@ export default function ChatRoom({ id }: { id: string }) {
 
       {hasAccepted && (
         <div className="notice" style={{ marginTop: 12 }}>
-          <strong>Hay un acuerdo.</strong> El pago y la descarga se activarán en una fase posterior; por ahora
-          el acuerdo queda registrado en esta conversación.
+          <strong>Hay un acuerdo.</strong>{' '}
+          {conv.track_id
+            ? 'El comprador puede pagarlo con el botón «Pagar» de la oferta aceptada y descargar la pista desde su panel.'
+            : 'El pago del encargo se hace desde la página del encargo.'}
         </div>
       )}
 

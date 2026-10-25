@@ -7,6 +7,7 @@ import { getSupabase } from '@/lib/supabase';
 import { fetchNames } from '@/lib/profiles';
 import { formatPrice } from '@/lib/format';
 import { useUserId } from '@/lib/useUserId';
+import BuyButton from '@/components/BuyButton';
 import type { Commission } from '@/lib/commissions';
 
 type Proposal = {
@@ -29,6 +30,7 @@ export default function CommissionPanel({ commission }: { commission: Commission
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [loaded, setLoaded] = useState(false);
+  const [paidProposals, setPaidProposals] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +45,12 @@ export default function CommissionPanel({ commission }: { commission: Commission
     const list = (data ?? []) as Proposal[];
     setProposals(list);
     setNames(await fetchNames(list.map((p) => p.producer_id)));
+    const { data: paid } = await sb
+      .from('orders')
+      .select('proposal_id')
+      .eq('status', 'paid')
+      .not('proposal_id', 'is', null);
+    setPaidProposals(((paid ?? []) as { proposal_id: string }[]).map((p) => p.proposal_id));
     setLoaded(true);
   }, [commission.id]);
 
@@ -144,6 +152,10 @@ export default function CommissionPanel({ commission }: { commission: Commission
             </div>
             <div className="muted" style={{ marginTop: 6, lineHeight: 1.5 }}>{p.message}</div>
             <div className="faint" style={{ marginTop: 6, fontSize: 13 }}>{PROPOSAL_STATUS[p.status]}</div>
+            {p.status === 'accepted' && !paidProposals.includes(p.id) && (
+              <BuyButton kind="proposal" id={p.id} label={`Pagar ${formatPrice(p.price_cents)}`} small />
+            )}
+            {paidProposals.includes(p.id) && <div className="status-ok" style={{ marginTop: 8 }}>Pagado. Recibirás el beat por el chat.</div>}
             <div className="offer-actions">
               {commission.status === 'open' && p.status === 'pending' && (
                 <button type="button" className="btn btn-primary btn-sm" disabled={busy} onClick={() => accept(p.id)}>
