@@ -49,3 +49,20 @@ export async function getCommission(id: string): Promise<Commission | null> {
   const names = await fetchNames([row.buyer_id]);
   return { ...row, buyer_name: names[row.buyer_id] || 'Usuario' };
 }
+
+export async function searchCommissions(q: string): Promise<Commission[]> {
+  const sb = getSupabase();
+  const needle = q.replace(/[%,()*\\"'`:;]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+  if (!sb || !needle) return [];
+  const { data, error } = await sb
+    .from('commissions')
+    .select(COLUMNS)
+    .eq('status', 'open')
+    .or(`title.ilike.%${needle}%,description.ilike.%${needle}%`)
+    .order('created_at', { ascending: false })
+    .limit(12);
+  if (error || !data) return [];
+  const rows = data as Omit<Commission, 'buyer_name'>[];
+  const names = await fetchNames(rows.map((r) => r.buyer_id));
+  return rows.map((r) => ({ ...r, buyer_name: names[r.buyer_id] || 'Usuario' }));
+}

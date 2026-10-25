@@ -84,3 +84,63 @@ export async function getTrack(id: string): Promise<Track | null> {
   const publicUrl = (path: string) => sb.storage.from('previews').getPublicUrl(path).data.publicUrl;
   return toTrack(data, publicUrl);
 }
+
+export type SearchParams = {
+  q?: string;
+  genre?: string;
+  license?: string;
+  maxPrice?: number; // en euros
+  bpmMin?: number;
+  bpmMax?: number;
+  sort?: 'nuevo' | 'precio_asc' | 'precio_desc';
+};
+
+// Quita los caracteres que tienen significado especial en los filtros de la base de datos.
+export function cleanQuery(raw: string | undefined): string {
+  return (raw ?? '').replace(/[%,()*\\"'`:;]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+}
+
+export async function searchTracks(p: SearchParams): Promise<Track[]> {
+  const q = cleanQuery(p.q);
+  const sb = getSupabase();
+  if (!sb) {
+    const needle = q.toLowerCase();
+    return DEMO_TRACKS.filter(
+      (t) =>
+        (!needle ||
+          t.title.toLowerCase().includes(needle) ||
+          t.producer_name.toLowerCase().includes(needle) ||
+          (t.description ?? '').toLowerCase().includes(needle)) &&
+        (!p.genre || t.genre === p.genre) &&
+        (!p.license || t.license === p.license) &&
+        (p.maxPrice === undefined || t.price_cents <= p.maxPrice * 100) &&
+        (p.bpmMin === undefined || (t.bpm ?? 0) >= p.bpmMin) &&
+        (p.bpmMax === undefined || (t.bpm ?? 9999) <= p.bpmMax),
+    );
+  }
+
+  let query = sb.from('tracks').select(COLUMNS).eq('status', 'published');
+
+  if (q) {
+    // También busca por el nombre del productor.
+    const { data: people } = await sb.from('profiles').select('id').ilike('display_name', `%${q}%`).limit(50);
+    const ids = ((people ?? []) as { id: string }[]).map((x) => x.id);
+    const parts = [`title.ilike.%${q}%`, `description.ilike.%${q}%`];
+    if (ids.length > 0) parts.push(`producer_id.in.(${ids.join(',')})`);
+    query = query.or(parts.join(','));
+  }
+  if (p.genre) query = query.eq('genre', p.genre);
+  if (p.license) query = query.eq('license', p.license);
+  if (p.maxPrice !== undefined) query = query.lte('price_cents', Math.round(p.maxPrice * 100));
+  if (p.bpmMin !== undefined) query = query.gte('bpm', p.bpmMin);
+  if (p.bpmMax !== undefined) query = query.lte('bpm', p.bpmMax);
+
+  if (p.sort === 'precio_asc') query = query.order('price_cents', { ascending: true });
+  else if (p.sort === 'precio_desc') query = query.order('price_cents', { ascending: false });
+  else query = query.order('created_at', { ascending: false });
+
+  const { data, error } = await query.limit(60);
+  if (error || !data) return [];
+  const publicUrl = (path: string) => sb.storage.from('previews').getPublicUrl(path).data.publicUrl;
+  return data.map((row) => toTrack(row, publicUrl));
+}

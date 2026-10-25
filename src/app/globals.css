@@ -157,3 +157,7 @@ h2.section { font-size: clamp(26px, 3.4vw, 36px); }
 .list-item:hover { border-color: var(--accent); }
 .badge { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--line2); color: var(--soft); }
 .badge.open { border-color: var(--accent); color: var(--accent); }
+
+/* Buscador de la cabecera */
+.search { flex: 1 1 220px; max-width: 360px; min-width: 0; }
+.search .field { padding: 10px 16px; border-radius: 999px; font-size: 15px; }

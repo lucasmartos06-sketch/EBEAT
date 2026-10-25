@@ -30,6 +30,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </svg>
               {APP_NAME}
             </Link>
+            <form action="/buscar" method="get" className="search" role="search">
+              <input name="q" type="search" className="field" placeholder="Buscar pistas, productores…" aria-label="Buscar" maxLength={60} />
+            </form>
             <nav className="nav">
               <Link href="/catalogo" className="nav-link">Catálogo</Link>
               <Link href="/encargos" className="nav-link">Encargos</Link>
@@ -46,6 +49,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="wrap">
             <div>{APP_NAME} · Versión de pruebas</div>
             <nav>
+              <Link href="/buscar">Buscar</Link>
               <Link href="/catalogo">Catálogo</Link>
               <Link href="/encargos">Encargos</Link>
               <Link href="/subastas">Subastas</Link>
