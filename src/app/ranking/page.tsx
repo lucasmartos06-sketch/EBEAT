@@ -140,7 +140,7 @@ export default async function RankingPage({
             <div style={{ fontWeight: 600, marginTop: 16 }}>Comisión reducida</div>
             <div className="muted" style={{ fontSize: 14, marginTop: 4 }}>El mes siguiente paga menos comisión por cada venta.</div>
             <div className="faint" style={{ fontSize: 13, marginTop: 16 }}>
-              Quien haga trampas pierde el premio. Los premios se activarán junto con los pagos.
+              Quien haga trampas pierde el premio (<Link href="/normas" style={{ color: 'var(--accent)' }}>ver normas y fraude</Link>). Los premios se activarán junto con los pagos.
             </div>
           </div>
         </aside>
