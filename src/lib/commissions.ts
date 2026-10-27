@@ -1,5 +1,6 @@
 import { getSupabase } from './supabase';
 import { fetchNames } from './profiles';
+import { topGenres } from './tracks';
 
 export type Commission = {
   id: string;
@@ -65,4 +66,12 @@ export async function searchCommissions(q: string): Promise<Commission[]> {
   const rows = data as Omit<Commission, 'buyer_name'>[];
   const names = await fetchNames(rows.map((r) => r.buyer_id));
   return rows.map((r) => ({ ...r, buyer_name: names[r.buyer_id] || 'Usuario' }));
+}
+
+// Géneros de los encargos abiertos (incluye los escritos con «Otro»).
+export async function getCommissionGenres(limit = 16): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data } = await sb.from('commissions').select('genre').eq('status', 'open').limit(2000);
+  return topGenres(((data ?? []) as { genre: string }[]).map((r) => r.genre), limit);
 }

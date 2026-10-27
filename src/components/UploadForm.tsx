@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
-import { COMMISSION_PERCENT, GENRES, LICENSES, supabaseConfigured } from '@/lib/config';
+import { COMMISSION_PERCENT, LICENSES, supabaseConfigured } from '@/lib/config';
+import GenreSelect from '@/components/GenreSelect';
 
 const MAX_SIZE_MB = 50;
 
@@ -57,6 +58,7 @@ export default function UploadForm() {
     const file = f.get('audio') as File | null;
 
     if (!title) return setError('Escribe un título.');
+    if (!genre) return setError('Elige un género o escribe uno en «Otro».');
     const price = Number(priceRaw);
     if (priceRaw === '' || Number.isNaN(price) || price < 0) return setError('Indica un precio válido en euros.');
     const bpm = bpmRaw === '' ? null : Number(bpmRaw);
@@ -139,11 +141,7 @@ export default function UploadForm() {
       <div className="field-row">
         <div className="field-group">
           <label htmlFor="genre" className="label">Género</label>
-          <select id="genre" name="genre" className="field" defaultValue={GENRES[0]}>
-            {GENRES.map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
+          <GenreSelect />
         </div>
         <div className="field-group">
           <label htmlFor="bpm" className="label">BPM (opcional)</label>

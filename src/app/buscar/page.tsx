@@ -4,7 +4,7 @@ import TrackCard from '@/components/TrackCard';
 import { GENRES, LICENSES } from '@/lib/config';
 import { searchCommissions } from '@/lib/commissions';
 import { formatPrice } from '@/lib/format';
-import { cleanQuery, searchTracks, type SearchParams } from '@/lib/tracks';
+import { cleanQuery, getUsedGenres, searchTracks, type SearchParams } from '@/lib/tracks';
 
 export const metadata: Metadata = { title: 'Buscar' };
 export const dynamic = 'force-dynamic';
@@ -22,7 +22,7 @@ export default async function BuscarPage({ searchParams }: { searchParams: Promi
   const q = cleanQuery(raw.q);
   const params: SearchParams = {
     q,
-    genre: raw.genero && GENRES.includes(raw.genero) ? raw.genero : undefined,
+    genre: cleanQuery(raw.genero) || undefined,
     license: raw.licencia && raw.licencia in LICENSES ? raw.licencia : undefined,
     maxPrice: num(raw.max),
     bpmMin: num(raw.bpm_min),
@@ -30,7 +30,8 @@ export default async function BuscarPage({ searchParams }: { searchParams: Promi
     sort: raw.orden === 'precio_asc' || raw.orden === 'precio_desc' ? raw.orden : 'nuevo',
   };
 
-  const [tracks, commissions] = await Promise.all([searchTracks(params), searchCommissions(q)]);
+  const [tracks, commissions, used] = await Promise.all([searchTracks(params), searchCommissions(q), getUsedGenres(60)]);
+  const genreOptions = Array.from(new Set([...GENRES, ...used, ...(params.genre ? [params.genre] : [])]));
   const filtering = Boolean(params.genre || params.license || params.maxPrice !== undefined || params.bpmMin !== undefined || params.bpmMax !== undefined);
 
   return (
@@ -48,7 +49,7 @@ export default async function BuscarPage({ searchParams }: { searchParams: Promi
             <label htmlFor="genero" className="label">Género</label>
             <select id="genero" name="genero" className="field" defaultValue={params.genre ?? ''}>
               <option value="">Todos</option>
-              {GENRES.map((g) => <option key={g} value={g}>{g}</option>)}
+              {genreOptions.map((g) => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
           <div className="field-group">

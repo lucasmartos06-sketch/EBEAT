@@ -1,4 +1,6 @@
+import { MAIN_GENRES } from './config';
 import { getSupabase } from './supabase';
+import { getUsedGenres } from './tracks';
 
 export type RankRow = {
   producer_id: string;
@@ -46,4 +48,10 @@ export async function getRanking(month: string, genre: string): Promise<RankRow[
   const { data, error } = await sb.rpc('monthly_ranking', { p_month: `${month}-01`, p_genre: genre });
   if (error || !data) return [];
   return data as RankRow[];
+}
+
+// Géneros que muestra el ranking: los principales más los que tienen pistas (hasta 12).
+export async function getRankingGenres(): Promise<string[]> {
+  const used = await getUsedGenres(12);
+  return Array.from(new Set([...MAIN_GENRES, ...used]));
 }

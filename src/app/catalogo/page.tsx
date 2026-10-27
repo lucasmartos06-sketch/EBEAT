@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import TrackCard from '@/components/TrackCard';
-import { GENRES } from '@/lib/config';
-import { getTracks } from '@/lib/tracks';
+import { MAIN_GENRES } from '@/lib/config';
+import { cleanQuery, getTracks, getUsedGenres } from '@/lib/tracks';
 
 export const metadata: Metadata = { title: 'Catálogo' };
 export const dynamic = 'force-dynamic';
@@ -13,7 +13,9 @@ export default async function CatalogoPage({
   searchParams: Promise<{ genero?: string }>;
 }) {
   const { genero } = await searchParams;
-  const genre = genero && GENRES.includes(genero) ? genero : undefined;
+  const genre = cleanQuery(genero) || undefined;
+  const used = await getUsedGenres(16);
+  const genres = Array.from(new Set([...(used.length > 0 ? used : MAIN_GENRES), ...(genre ? [genre] : [])]));
   const { tracks, demo } = await getTracks(genre);
 
   return (
@@ -26,7 +28,7 @@ export default async function CatalogoPage({
 
       <div className="pills" style={{ marginTop: 28 }}>
         <Link href="/catalogo" className={`pill ${!genre ? 'pill-active' : ''}`}>Todos</Link>
-        {GENRES.map((g) => (
+        {genres.map((g) => (
           <Link
             key={g}
             href={`/catalogo?genero=${encodeURIComponent(g)}`}

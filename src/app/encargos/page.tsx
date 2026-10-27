@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { GENRES, supabaseConfigured } from '@/lib/config';
-import { getCommissions } from '@/lib/commissions';
+import { MAIN_GENRES, supabaseConfigured } from '@/lib/config';
+import { getCommissionGenres, getCommissions } from '@/lib/commissions';
+import { cleanQuery } from '@/lib/tracks';
 import { formatPrice } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Encargos' };
@@ -13,7 +14,9 @@ export default async function EncargosPage({
   searchParams: Promise<{ genero?: string }>;
 }) {
   const { genero } = await searchParams;
-  const genre = genero && GENRES.includes(genero) ? genero : undefined;
+  const genre = cleanQuery(genero) || undefined;
+  const used = await getCommissionGenres(16);
+  const genres = Array.from(new Set([...(used.length > 0 ? used : MAIN_GENRES), ...(genre ? [genre] : [])]));
   const commissions = await getCommissions(genre);
 
   return (
@@ -30,7 +33,7 @@ export default async function EncargosPage({
 
       <div className="pills" style={{ marginTop: 28 }}>
         <Link href="/encargos" className={`pill ${!genre ? 'pill-active' : ''}`}>Todos</Link>
-        {GENRES.map((g) => (
+        {genres.map((g) => (
           <Link
             key={g}
             href={`/encargos?genero=${encodeURIComponent(g)}`}

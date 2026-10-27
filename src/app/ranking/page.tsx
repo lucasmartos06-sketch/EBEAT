@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { GENRES, supabaseConfigured } from '@/lib/config';
+import { supabaseConfigured } from '@/lib/config';
 import {
   POINTS_TABLE,
   currentMonth,
+  getRankingGenres,
   getRanking,
   monthLabel,
   shiftMonth,
@@ -53,7 +54,8 @@ export default async function RankingPage({
 }) {
   const { genero, mes } = await searchParams;
   const now = currentMonth();
-  const genre = genero && GENRES.includes(genero) ? genero : GENRES[0];
+  const genres = await getRankingGenres();
+  const genre = genero && genres.includes(genero) ? genero : genres[0];
   const month = mes && MONTH_RE.test(mes) && mes <= now ? mes : now;
   const isCurrent = month === now;
 
@@ -62,7 +64,7 @@ export default async function RankingPage({
 
   const [rows, winners] = await Promise.all([
     getRanking(month, genre),
-    Promise.all(GENRES.map(async (g) => ({ genre: g, top: (await getRanking(previous, g))[0] ?? null }))),
+    Promise.all(genres.map(async (g) => ({ genre: g, top: (await getRanking(previous, g))[0] ?? null }))),
   ]);
 
   const href = (g: string, m: string) => `/ranking?genero=${encodeURIComponent(g)}&mes=${m}`;
@@ -83,7 +85,7 @@ export default async function RankingPage({
         ))}
       </div>
       <div className="pills" style={{ marginTop: 12 }}>
-        {GENRES.map((g) => (
+        {genres.map((g) => (
           <Link key={g} href={href(g, month)} className={`pill ${g === genre ? 'pill-active' : ''}`}>
             {g}
           </Link>

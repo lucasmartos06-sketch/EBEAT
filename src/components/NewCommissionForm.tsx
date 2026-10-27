@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
-import { GENRES, supabaseConfigured } from '@/lib/config';
+import { supabaseConfigured } from '@/lib/config';
+import GenreSelect from '@/components/GenreSelect';
 import { useUserId } from '@/lib/useUserId';
 
 export default function NewCommissionForm() {
@@ -44,6 +45,7 @@ export default function NewCommissionForm() {
     const budget = Number(budgetRaw);
 
     if (!title) return setError('Escribe un título para el encargo.');
+    if (!genre) return setError('Elige un género o escribe uno en «Otro».');
     if (!description) return setError('Describe el beat que necesitas.');
     if (budgetRaw === '' || Number.isNaN(budget) || budget < 0) return setError('Indica un presupuesto válido en euros.');
 
@@ -77,11 +79,7 @@ export default function NewCommissionForm() {
       <div className="field-row">
         <div className="field-group">
           <label htmlFor="genre" className="label">Género</label>
-          <select id="genre" name="genre" className="field" defaultValue={GENRES[0]}>
-            {GENRES.map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
+          <GenreSelect />
         </div>
         <div className="field-group">
           <label htmlFor="budget" className="label">Presupuesto (€)</label>

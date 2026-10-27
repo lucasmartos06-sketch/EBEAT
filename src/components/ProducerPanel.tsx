@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
-import { GENRES, supabaseConfigured } from '@/lib/config';
+import { supabaseConfigured } from '@/lib/config';
 import { COMMISSION_STATUS } from '@/lib/commissions';
 import { formatPrice } from '@/lib/format';
-import { currentMonth, getRanking, monthLabel } from '@/lib/ranking';
+import { currentMonth, getRanking, getRankingGenres, monthLabel } from '@/lib/ranking';
 import { useUserId } from '@/lib/useUserId';
 
 type Sanction = { id: string; level: number; reason: string; active: boolean; created_at: string };
@@ -61,7 +61,8 @@ export default function ProducerPanel() {
         sb.from('orders').select('id,amount_cents,commission_cents,status,source,created_at').eq('seller_id', userId).order('created_at', { ascending: false }).limit(20),
       ]);
       const month = currentMonth();
-      const boards = await Promise.all(GENRES.map(async (g) => ({ g, rows: await getRanking(month, g) })));
+      const rankingGenres = await getRankingGenres();
+      const boards = await Promise.all(rankingGenres.map(async (g) => ({ g, rows: await getRanking(month, g) })));
       if (cancelled) return;
       setTracks(t.count ?? 0);
       setSanctions((s.data ?? []) as Sanction[]);

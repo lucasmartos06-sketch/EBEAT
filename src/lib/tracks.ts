@@ -159,3 +159,21 @@ export async function getProducerTracks(producerId: string): Promise<Track[]> {
   const publicUrl = (path: string) => sb.storage.from('previews').getPublicUrl(path).data.publicUrl;
   return data.map((row) => toTrack(row, publicUrl));
 }
+
+// Ordena géneros por número de pistas (de más a menos) y devuelve los primeros.
+export function topGenres(genres: string[], limit: number): string[] {
+  const counts = new Map<string, number>();
+  for (const g of genres) if (g) counts.set(g, (counts.get(g) ?? 0) + 1);
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([g]) => g);
+}
+
+// Géneros que tienen pistas publicadas ahora mismo (incluye los escritos con «Otro»).
+export async function getUsedGenres(limit = 16): Promise<string[]> {
+  const sb = getSupabase();
+  if (!sb) return topGenres(DEMO_TRACKS.map((t) => t.genre), limit);
+  const { data } = await sb.from('tracks').select('genre').eq('status', 'published').limit(2000);
+  return topGenres(((data ?? []) as { genre: string }[]).map((r) => r.genre), limit);
+}

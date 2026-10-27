@@ -16,7 +16,17 @@ export const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YTEaqJu96fYN_4G2Jr1T0A_FvRsUw0U';
 export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
-export const GENRES = ['Trap', 'Drill', 'Hip hop', 'Lo-fi', 'Electrónica', 'Pop'];
+// Géneros principales (el ranking siempre los muestra).
+export const MAIN_GENRES = ['Trap', 'Drill', 'Hip hop', 'Lo-fi', 'Electrónica', 'Pop'];
+
+// Lista completa que se ofrece al subir una pista o pedir un encargo. Si falta uno, se puede escribir con «Otro».
+export const GENRES = [
+  ...MAIN_GENRES,
+  'Boom bap', 'R&B', 'Reggaeton', 'Dembow', 'Latin', 'Afrobeats', 'Dancehall', 'Reggae',
+  'Rock', 'Indie', 'House', 'Techno', 'Drum and bass', 'Phonk', 'Soul', 'Funk', 'Jazz',
+  'Flamenco', 'Cumbia', 'Salsa', 'Bachata', 'Ambient', 'Cinematográfico', 'Synthwave',
+  'Gospel', 'Instrumental',
+];
 
 export const LICENSES: Record<string, { name: string; desc: string }> = {
   personal: {
