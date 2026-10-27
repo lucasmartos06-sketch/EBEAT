@@ -23,7 +23,7 @@ function Row({ row, rank }: { row: RankRow; rank: number }) {
           style={{
             flex: 'none',
             width: 40,
-            fontFamily: "'Bricolage Grotesque', system-ui, sans-serif",
+            fontFamily: "var(--font-display), system-ui, sans-serif",
             fontWeight: 700,
             fontSize: 24,
             color: rank === 1 ? 'var(--accent)' : 'var(--text)',

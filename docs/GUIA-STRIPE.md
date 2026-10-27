@@ -5,7 +5,11 @@ Todo esto se hace con las claves **secretas**: van solo en Vercel, nunca en el c
 
 ## 1. Cuenta de Stripe
 
-1. Crea una cuenta en <https://stripe.com> con el país desde el que operas.
+1. Crea una cuenta en <https://stripe.com> eligiendo **España** como país. Stripe te pedirá los datos de tu
+   actividad (autónomo o sociedad) y tu cuenta bancaria, así que antes conviene tener **dada de alta la actividad**
+   en Hacienda; tu gestor te dirá cómo (alta de autónomo, epígrafe del IAE y régimen de IVA).
+   Una plataforma española puede pagar a productores de otros países europeos (y de Reino Unido, Suiza, EE. UU. y
+   Canadá) con Connect.
 2. Activa **Connect** (menú **Connect** → **Empezar**). Elige «Plataforma o marketplace» y cuentas **Express**.
    Stripe es quien recoge los datos y la cuenta bancaria de cada productor.
 3. Al principio todo funciona en **modo de prueba** (interruptor «Entorno de pruebas»). Prueba primero así,
@@ -50,5 +54,6 @@ En Supabase, **SQL Editor** → **New query**: pega y ejecuta `supabase/fase9-pa
   La **retención de pagos** de las normas (7-14 días) no está automatizada: hay que definirla con Stripe y un
   asesor.
 - Las devoluciones se hacen desde el panel de Stripe; eBeat las refleja solo.
-- Antes de cobrar dinero real hay que revisar con un asesor los impuestos (IVA), las condiciones legales y la
-  protección de datos.
+- Antes de cobrar dinero real hay que revisar con un gestor o asesor el **IVA** (ventas a consumidores de otros
+  países de la UE, ventanilla única OSS) y con un abogado los textos legales (`/terminos`, `/privacidad`,
+  `/cookies` y `/aviso-legal`, que están en borrador con datos `[COMPLETAR]`).

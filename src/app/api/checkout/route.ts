@@ -163,6 +163,12 @@ export async function POST(req: Request) {
       success_url: `${origin}/compra/exito?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/panel`,
       customer_email: user.email,
+      custom_text: {
+        submit: {
+          message:
+            'Al pagar aceptas los términos de uso y pides la entrega inmediata del contenido digital: una vez iniciada la descarga pierdes el derecho de desistimiento.',
+        },
+      },
       line_items: [
         {
           quantity: 1,

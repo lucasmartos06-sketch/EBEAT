@@ -3,7 +3,7 @@
 Plataforma web para que productores de música suban sus beats y los licencien a compradores.
 
 Estado: cuentas, subida de pistas, catálogo y reproductor (fase 1); chat de negociación con ofertas y encargos
-(fase 2); subastas (fase 3); ranking mensual (fase 4); normas y panel de ingresos para administradores (fase 5); perfiles de productor (fase 6); ajustes de cuenta (fase 7); panel del productor y sanciones por fraude (fase 8); pagos con Stripe, originales privados y descargas (fase 9).
+(fase 2); subastas (fase 3); ranking mensual (fase 4); normas y panel de ingresos para administradores (fase 5); perfiles de productor (fase 6); ajustes de cuenta (fase 7); panel del productor y sanciones por fraude (fase 8); pagos con Stripe, originales privados y descargas (fase 9); textos legales en borrador y fuentes alojadas en la propia web (RGPD).
 Para activar los pagos sigue [`docs/GUIA-STRIPE.md`](docs/GUIA-STRIPE.md).
 
 ## Tecnología

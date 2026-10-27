@@ -1,9 +1,15 @@
 import type { Metadata } from 'next';
+import { Bricolage_Grotesque, Figtree } from 'next/font/google';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import './globals.css';
 import AuthNav from '@/components/AuthNav';
 import { APP_NAME } from '@/lib/config';
+
+// Las fuentes se descargan al compilar y se sirven desde la propia web: el navegador de los usuarios
+// no se conecta a Google (importante para el RGPD).
+const body = Figtree({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-body', display: 'swap' });
+const display = Bricolage_Grotesque({ subsets: ['latin'], weight: ['500', '700'], variable: '--font-display', display: 'swap' });
 
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
@@ -12,15 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="es" className={`${body.variable} ${display.variable}`}>
       <body>
         <header className="site-header">
           <div className="wrap">
@@ -57,6 +55,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/ranking">Ranking</Link>
               <Link href="/productores">Productores</Link>
               <Link href="/normas">Normas</Link>
+              <Link href="/terminos">Términos</Link>
+              <Link href="/privacidad">Privacidad</Link>
+              <Link href="/cookies">Cookies</Link>
+              <Link href="/aviso-legal">Aviso legal</Link>
               <Link href="/mensajes">Mensajes</Link>
               <Link href="/subir">Subir pista</Link>
               <Link href="/entrar">Entrar</Link>
